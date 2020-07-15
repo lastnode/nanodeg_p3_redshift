@@ -5,6 +5,11 @@ import configparser
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
+DWH_ROLE_ARN = config['IAM_ROLE']['ARN']
+LOG_DATA = config['S3']['LOG_DATA']
+SONG_DATA = config['S3']['SONG_DATA']
+LOG_JSONPATH = config['S3']['LOG_JSONPATH']
+
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events_table"
@@ -82,9 +87,14 @@ PRIMARY KEY (start_time))
 
 # STAGING TABLES
 
-staging_events_copy = ("""
+## Copy code adapted from 'Cloud Data Warehouses' module exercises.
 
-""").format()
+staging_events_copy = ("""
+    copy staging_events from {}
+    credentials 'aws_iam_role={}'
+    json {}
+    gzip delimiter ';' compupdate off region 'us-west-2';
+""").format(LOG_DATA,DWH_ROLE_ARN,LOG_JSONPATH)
 
 staging_songs_copy = ("""
 
