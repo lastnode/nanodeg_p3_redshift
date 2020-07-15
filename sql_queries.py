@@ -50,7 +50,7 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-songplay_id bigint IDENTITY(1, 1),
+songplay_id bigint IDENTITY(0, 1),
 start_time timestamp references time(start_time),
 user_id int references users(user_id),
 level text,
