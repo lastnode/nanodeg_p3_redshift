@@ -12,8 +12,8 @@ LOG_JSONPATH = config['S3']['LOG_JSONPATH']
 
 # DROP TABLES
 
-staging_events_table_drop = "DROP TABLE IF EXISTS staging_events_table"
-staging_songs_table_drop = ""
+staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
+staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
 songplay_table_drop = "DROP TABLE IF EXISTS songplays"
 user_table_drop = "DROP TABLE IF EXISTS users CASCADE"
 song_table_drop = "DROP TABLE IF EXISTS songs CASCADE"
@@ -28,24 +28,36 @@ artist text,
 auth text,
 first_name text,
 gender char(1),
-item_session int,
+item_session numeric,
 last_name text,
-length int,
+length numeric,
 level text,
 location text,
 method text,
 page text,
-registration int,
-session_id int,
+registration numeric,
+session_id numeric,
 song text,
-status int,
-ts bigint,
+status numeric,
+ts numeric,
 user_agent text,
-user_id int
+user_id numeric
 )
 """)
 
 staging_songs_table_create = ("""
+CREATE  TABLE IF NOT EXISTS staging_songs (
+num_songs numeric,
+artist_id text,
+artist_latitude numeric,
+artist_longitude numeric,
+artist_location text,
+artist_name text,
+song_id text,
+title text,
+duration numeric,
+year numeric
+)
 """)
 
 songplay_table_create = ("""
@@ -109,15 +121,18 @@ PRIMARY KEY (start_time))
 ## Copy code adapted from 'Cloud Data Warehouses' module exercises.
 
 staging_events_copy = ("""
-    copy staging_events from {}
-    iam_role {}
-    json {}
-    compupdate off region 'us-west-2';
-""").format(LOG_DATA,DWH_ROLE_ARN,LOG_JSONPATH)
+copy staging_events from {}
+iam_role {}
+json {}
+region 'us-west-2';
+""").format(LOG_DATA, DWH_ROLE_ARN, LOG_JSONPATH)
 
 staging_songs_copy = ("""
-
-""").format()
+copy staging_songs from {}
+iam_role {}
+format as json 'auto'
+region 'us-west-2';
+""").format(SONG_DATA, DWH_ROLE_ARN)
 
 # FINAL TABLES
 
@@ -138,9 +153,9 @@ time_table_insert = ("""
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
-drop_table_queries = [staging_events_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
-copy_table_queries = [staging_events_copy ]
+create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
+drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
 
 # staging_events_table_drop, staging_songs_table_drop
