@@ -39,7 +39,7 @@ registration numeric,
 session_id numeric,
 song text,
 status numeric,
-ts numeric,
+ts timestamp,
 user_agent text,
 user_id numeric
 )
@@ -120,10 +120,13 @@ PRIMARY KEY (start_time))
 
 ## Copy code adapted from 'Cloud Data Warehouses' module exercises.
 
+# Redshift timeformat code from - https://stackoverflow.com/questions/28496065/epoch-to-timeformat-yyyy-mm-dd-hhmiss-while-redshift-copy
+
 staging_events_copy = ("""
 copy staging_events from {}
 iam_role {}
 json {}
+timeformat as 'epochmillisecs'
 region 'us-west-2';
 """).format(LOG_DATA, DWH_ROLE_ARN, LOG_JSONPATH)
 
@@ -137,6 +140,31 @@ region 'us-west-2';
 # FINAL TABLES
 
 songplay_table_insert = ("""
+insert into songplays (
+    start_time,
+    user_id,
+    level, 
+    song_id,
+    artist_id,
+    session_id,
+    location,
+    user_agent)
+select 
+    staging_events.ts,
+    staging_events.user_id,
+    staging_events.level, 
+    staging_songs.song_id,
+    staging_songs.artist_id,
+    staging_events.session_id,
+    staging_events.location,
+    staging_events.user_agent
+from staging_events
+
+inner join staging_songs on 
+    staging_events.artist = staging_songs.artist_name and
+    staging_events.song = staging_songs.title
+
+where staging_events.page = 'NextSong'
 """)
 
 user_table_insert = ("""
@@ -156,4 +184,6 @@ time_table_insert = ("""
 create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [songplay_table_insert]
+
+#songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert
