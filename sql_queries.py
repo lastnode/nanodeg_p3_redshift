@@ -109,7 +109,7 @@ CREATE TABLE time (
 start_time timestamp,
 hour int,
 day int,
-week_of_year int,
+week int,
 month int,
 year int,
 weekday int,
@@ -150,7 +150,7 @@ insert into songplays (
     location,
     user_agent)
 select 
-    staging_events.ts,
+    distinct staging_events.ts as start_time,
     staging_events.user_id,
     staging_events.level, 
     staging_songs.song_id,
@@ -167,16 +167,86 @@ inner join staging_songs on
 where staging_events.page = 'NextSong'
 """)
 
+# UPSERT alternative via this Udacity mentor response -
+# https://knowledge.udacity.com/questions/276119
+
 user_table_insert = ("""
+insert into users (
+    user_id,
+    first_name,
+    last_name,
+    gender,
+    level)
+select
+    distinct staging_events.user_id,
+    staging_events.first_name,
+    staging_events.last_name,
+    staging_events.gender,
+    staging_events.level
+from staging_events
+
+where staging_events.page = 'NextSong' and 
+staging_events.user_id NOT IN (SELECT DISTINCT user_id FROM users)
 """)
 
 song_table_insert = ("""
+insert into songs (
+    song_id,
+    title,
+    artist_id,
+    year,
+    duration
+)
+select 
+    distinct staging_songs.song_id,
+    staging_songs.title,
+    staging_songs.artist_id,
+    staging_songs.year,
+    staging_songs.duration
+from staging_songs
+
+where song_id IS NOT NULL
 """)
 
 artist_table_insert = ("""
+insert into artists (
+    artist_id,
+    name,
+    location,
+    latitude,
+    longitude)
+select
+    distinct staging_songs.artist_id,
+    staging_songs.artist_name as name,
+    staging_songs.artist_location as location,
+    staging_songs.artist_latitude as latitude,
+    staging_songs.artist_longitude as longitude
+from staging_songs
+
+where artist_id IS NOT NULL
 """)
 
+# Using Redshit's EXTRACT function -
+# https://docs.aws.amazon.com/redshift/latest/dg/r_EXTRACT_function.html
+
 time_table_insert = ("""
+insert into time (
+    start_time,
+    hour,
+    day,
+    week,
+    month,
+    year,
+    weekday)
+select
+    distinct staging_events.ts as start_time,
+    extract (hour from staging_events.ts) as hour,
+    extract (day from staging_events.ts) as day,
+    extract (week from staging_events.ts) as week,
+    extract (month from staging_events.ts) as month,
+    extract (year from staging_events.ts) as year,
+    extract (weekday from staging_events.ts) as weekday
+from staging_events
 """)
 
 # QUERY LISTS
@@ -184,6 +254,6 @@ time_table_insert = ("""
 create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert]
+insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
 
 #songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert
