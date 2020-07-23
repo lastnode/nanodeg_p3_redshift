@@ -34,12 +34,12 @@ length numeric,
 level text,
 location text,
 method text,
-page text,
+page text distkey,
 registration numeric,
 session_id numeric,
 song text,
 status numeric,
-ts timestamp,
+ts timestamp sortkey,
 user_agent text,
 user_id numeric
 )
@@ -48,7 +48,7 @@ user_id numeric
 staging_songs_table_create = ("""
 CREATE  TABLE IF NOT EXISTS staging_songs (
 num_songs numeric,
-artist_id text,
+artist_id text distkey,
 artist_latitude numeric,
 artist_longitude numeric,
 artist_location text,
@@ -63,8 +63,8 @@ year numeric
 songplay_table_create = ("""
 CREATE TABLE songplays (
 songplay_id bigint IDENTITY(0, 1),
-start_time timestamp references time(start_time),
-user_id int references users(user_id),
+start_time timestamp references time(start_time) sortkey,
+user_id int references users(user_id) distkey,
 level text,
 song_id text references songs(song_id),
 artist_id text references artists(artist_id),
@@ -76,7 +76,7 @@ PRIMARY KEY (songplay_id))
 
 user_table_create = ("""
 CREATE TABLE users (
-user_id int,
+user_id int distkey sortkey,
 first_name text,
 last_name text,
 gender text,
@@ -86,7 +86,7 @@ PRIMARY KEY (user_id))
 
 song_table_create = ("""
 CREATE TABLE songs (
-song_id text,
+song_id text distkey,
 title text,
 artist_id text,
 year int,
@@ -96,7 +96,7 @@ PRIMARY KEY (song_id))
 
 artist_table_create = ("""
 CREATE TABLE artists (
-artist_id text,
+artist_id text distkey sortkey,
 name text,
 location text,
 latitude double precision,
@@ -106,7 +106,7 @@ PRIMARY KEY (artist_id))
 
 time_table_create = ("""
 CREATE TABLE time (
-start_time timestamp,
+start_time timestamp distkey sortkey,
 hour int,
 day int,
 week int,
@@ -167,9 +167,6 @@ inner join staging_songs on
 where staging_events.page = 'NextSong'
 """)
 
-# UPSERT alternative via this Udacity mentor response -
-# https://knowledge.udacity.com/questions/276119
-
 user_table_insert = ("""
 insert into users (
     user_id,
@@ -178,7 +175,7 @@ insert into users (
     gender,
     level)
 select
-    distinct staging_events.user_id,
+    distinct user_id,
     staging_events.first_name,
     staging_events.last_name,
     staging_events.gender,
@@ -186,7 +183,7 @@ select
 from staging_events
 
 where staging_events.page = 'NextSong' and 
-staging_events.user_id NOT IN (SELECT DISTINCT user_id FROM users)
+user_id NOT IN (SELECT DISTINCT user_id FROM users)
 """)
 
 song_table_insert = ("""
@@ -205,7 +202,7 @@ select
     staging_songs.duration
 from staging_songs
 
-where song_id IS NOT NULL
+where staging_songs.song_id NOT IN (SELECT DISTINCT song_id FROM songs)
 """)
 
 artist_table_insert = ("""
@@ -223,7 +220,7 @@ select
     staging_songs.artist_longitude as longitude
 from staging_songs
 
-where artist_id IS NOT NULL
+where staging_songs.artist_id NOT IN (SELECT DISTINCT artist_id FROM artists)
 """)
 
 # Using Redshit's EXTRACT function -
