@@ -167,6 +167,9 @@ inner join staging_songs on
 where staging_events.page = 'NextSong'
 """)
 
+# Redshift UPSERT equivalent via Udacity mentor answer -
+# https://knowledge.udacity.com/questions/276119
+
 user_table_insert = ("""
 insert into users (
     user_id,
