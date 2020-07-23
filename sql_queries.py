@@ -160,7 +160,7 @@ select
     staging_events.user_agent
 from staging_events
 
-inner join staging_songs on 
+inner join staging_songs on
     staging_events.artist = staging_songs.artist_name and
     staging_events.song = staging_songs.title
 
@@ -185,7 +185,7 @@ select
     staging_events.level
 from staging_events
 
-where staging_events.page = 'NextSong' and 
+where staging_events.page = 'NextSong' and
 user_id NOT IN (SELECT DISTINCT user_id FROM users)
 """)
 
