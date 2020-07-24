@@ -1,24 +1,17 @@
 import configparser
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
+from etl_utils import run_query
 
 
 def drop_tables(cur, conn):
     for query in drop_table_queries:
-        print("Running query:")
-        print(query)
-
-        cur.execute(query)
-        conn.commit()
-
+        run_query(cur, conn, query)
+               
 
 def create_tables(cur, conn):
     for query in create_table_queries:
-        print("Running query:")
-        print(query)
-        
-        cur.execute(query)
-        conn.commit()
+        run_query(cur, conn, query)
 
 
 def main():
