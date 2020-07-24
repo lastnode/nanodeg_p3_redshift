@@ -23,7 +23,7 @@ def drop_tables(cur, conn):
 
     for query in drop_table_queries:
         run_query(cur, conn, query)
-              
+             
 
 def create_tables(cur, conn):
 
@@ -47,6 +47,24 @@ def create_tables(cur, conn):
 
 
 def main():
+
+    """
+    Main function of this script that creates the tables. 
+    
+    Connects to the Postgres server
+    and passes the connection and the cursor to the following functions
+    so they can set up the tables required by the `etl.py` script:
+
+    drop_tables()
+    creat_tables()
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
