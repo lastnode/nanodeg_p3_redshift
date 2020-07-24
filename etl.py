@@ -35,19 +35,19 @@ def main():
     # some time.
 
     parser = argparse.ArgumentParser(prog='etl.py', description='ETL Script that extracts data from s3 buckets and loads them into tables.')
-    parser.add_argument('-s', action='store_true', help='Skip extracing data from s3 bucket and loading them into the staging tables.')
-    parser.add_argument('-f', action='store_true', help='Skip extracing data from the staging tables and loading them into the final tables.')
+    parser.add_argument('-s', '--skip-staging', action='store_true', help='Skip extracing data from s3 bucket and loading them into the staging tables.')
+    parser.add_argument('-f', '--skip-final', action='store_true', help='Skip extracing data from the staging tables and loading them into the final tables.')
 
 
     args, leftovers = parser.parse_known_args()
 
-    if args.s == True:
-        print("Not loading data into staging tables.")
+    if args.skip_staging:
+        print("Not loading s3 bucket data into staging tables.")
     else:
         load_staging_tables(cur, conn)
          
-    if args.s == True:
-        print("Not loading data into final tables.")
+    if args.skip_final == True:
+        print("Not loading staging table data into final tables.")
     else:
         insert_final_tables(cur, conn)
 
