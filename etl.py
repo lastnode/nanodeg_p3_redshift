@@ -38,7 +38,7 @@ def main():
         print("Not loading s3 bucket data into staging tables.")
     else:
         load_staging_tables(cur, conn)
-         
+       
     if args.skip_final == True:
         print("Not loading staging table data into final tables.")
     else:
