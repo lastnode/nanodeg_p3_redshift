@@ -17,6 +17,18 @@ Whereas in [the first iteration of this project](https://github.com/lastnode/nan
 
 # ETL Scripts
 
+## Setup
+
+In order to run these Python scripts, you will first need to install Python 3 on your computer, and then install the following Python modules via [pip](https://pypi.org/project/pip/) or [anaconda](https://www.anaconda.com/products/individual):
+
+- [psycopg2](https://pypi.org/project/psycopg2/) - a PostgreSQL database adapter for Python.
+- [argparse](https://pypi.org/project/argparse/) - a module that allow us to access command line interface (CLI) arguments entered by users.
+
+To install these via `pip` you can run:
+
+`pip install psycopg2 argparse`
+
+
 ## Primary
 These are the two primary scripts that will need to be run for this project, in the order that they need to be run.
 
