@@ -63,8 +63,8 @@ year numeric
 songplay_table_create = ("""
 CREATE TABLE songplays (
 songplay_id bigint IDENTITY(0, 1),
-start_time timestamp references time(start_time) sortkey,
-user_id int references users(user_id) distkey,
+start_time timestamp references time(start_time) sortkey not null,
+user_id int references users(user_id) distkey not null,
 level text,
 song_id text references songs(song_id),
 artist_id text references artists(artist_id),
@@ -76,7 +76,7 @@ PRIMARY KEY (songplay_id))
 
 user_table_create = ("""
 CREATE TABLE users (
-user_id int distkey sortkey,
+user_id int distkey sortkey not null,
 first_name text,
 last_name text,
 gender text,
@@ -86,7 +86,7 @@ PRIMARY KEY (user_id))
 
 song_table_create = ("""
 CREATE TABLE songs (
-song_id text distkey,
+song_id text distkey not null,
 title text,
 artist_id text,
 year int,
@@ -96,7 +96,7 @@ PRIMARY KEY (song_id))
 
 artist_table_create = ("""
 CREATE TABLE artists (
-artist_id text distkey sortkey,
+artist_id text distkey sortkey not null,
 name text,
 location text,
 latitude double precision,
@@ -106,7 +106,7 @@ PRIMARY KEY (artist_id))
 
 time_table_create = ("""
 CREATE TABLE time (
-start_time timestamp distkey sortkey,
+start_time timestamp distkey sortkey not null,
 hour int,
 day int,
 week int,
