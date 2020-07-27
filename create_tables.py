@@ -10,8 +10,8 @@ def drop_tables(cur, conn):
     Connects to the Amazon Redshift database specifiied in 'dwh.cfg'
     in order to drop tables remaining from previous ETL processes.
   
-    Passes a list of `drop table` queries to etl_utils.run_query() which
-    executes them in turn.
+    Runs the list of queries in `create_table_queries` in the `sql_queries`
+    module through etl_utils.run_query() which executes them in turn.n.
 
     Paramters:
     cur (psycopg2.cursor()) - cursor of the (Postgres) db
@@ -31,8 +31,8 @@ def create_tables(cur, conn):
     Connects to the Amazon Redshift database specifiied in 'dwh.cfg'
     in order to set up the required staging and final data tables.
 
-    Passes a list of `create table` queries to etl_utils.run_query() which
-    executes them in turn.
+    Runs the list of queries in `create_table_queries` in the `sql_queries`
+    module through etl_utils.run_query() which executes them in turn.n.
 
     Paramters:
     cur (psycopg2.cursor()) - cursor of the (Postgres) db
