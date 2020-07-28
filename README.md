@@ -15,7 +15,7 @@ Whereas in [the first iteration of this project](https://github.com/lastnode/nan
 - Dashboard.ipynb -- a Jupyter notebook that functions as a sample analytics dashboard
 ```
 
-# ETL Scripts
+# ETL Process
 
 ## Setup
 
@@ -29,7 +29,7 @@ To install these via `pip` you can run:
 `pip install psycopg2 argparse`
 
 
-## Primary
+## Primary ETL Scripts
 These are the two primary scripts that will need to be run for this project, in the order that they need to be run.
 
 1) `create_tables.py`  - This script drops any existing tables in Redshift and creates the necesary tables for our `etl.py` script to run. `etl.py` will not execute correctly if you first do not run this script.
@@ -45,15 +45,57 @@ Note that `etl.py` come swith two command line options:
 
 This makes the ETL process more modular and allows for easier data pipeline troubleshooting as well.
 
-## Secondary
+## Secondary ETL Scripts
 3) `sql_queries.py` - This is a module that both `create_tables.py` and `etl.py` load to run the SQL queries needed to both set up the tables required by this project, and then insert data into them. This script is not executed directly.
 
 4) `etl_utils.py` - A support module that contains a `run_query()` that is used by both `etl.py` and `create_tables.py`. Going forward this module can be expanded with other required utility functions.
 
 5) `Dashboard.ipynb.` - A [Jupyter](https://jupyter.org/) notebook that contains sample queries that might be run by an analytics team. It can be expanded on as analysts think about what other queries they would like to run on the data.
 
-# Database Schema
+## Data Quality and Database Speed
+
+A number of measures have been taken in order to maintain the quality of the data being inserted into our staging and final tables.
+
+### 1) `blanksasnull` and `emptyasnull` parameters added to COPY command that creates staging tables
+
+Using the `blanksasnull` and `emptyasnull` [parameters for Redshift's COPY command](https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-trimblanks), we ensure that any blank or empty cells are copied in as `NULL` values instead, thereby ensuring that they are matched when we use Postgres' `not null` constraint when creating final tables.
+
+### 2) `not null` constraint added to the Primary Keys of final tables
+In all the final tables we create, [Postgres' `not null` constraint](https://www.w3resource.com/PostgreSQL/not-null.php#:~:text=The%20not%2Dnull%20constraint%20in,data%2Dtype%20of%20a%20column.) has been added to the Primary Key. This ensures that rows without a valid Primary Key are not inserted from the staging tables into the final tables.
+
+### 3) Redshift UPSERT equivalent used to adding duplicate rows to final tables
+
+Since Postgres' [`INSERT ON CONFLICT` command](https://www.postgresqltutorial.com/postgresql-upsert/) is not available in Redshift, we make sure we are not duplicating data by following the method outlined in [this Udacity Ask a Mentor answer](https://knowledge.udacity.com/questions/276119):
+
+```
+SELECT DISTINCT user_id,
+[...]
+where user_id NOT IN (SELECT DISTINCT user_id FROM users)
+```
+
+### 4) `sortkey` and `distkey` parameters used to speed up data retrieval from staging and final tables
+All staging and final tables have `distkey` and `sortkey` paramaters added to them (usually to the Primary Key) so that columns that we need to sort sequentially will be sorted and similar values for these columns will be stored on the same Redshift node, making retrieval much faster when we query them.
+
+# Database
+
+## Schema
+
+This project required us to create 2 staging tables:
+
+1) `staging_events`
+2) `staging_songs`
+
+and 5 final tables:
+
+1) `songplays`
+2) `users`
+3) `songs`
+4) `artists`
+5) `time`
+
 Given that the primary purpose of this project is to show _what songs users are listening to_, the `songplays` table is our fact table, with several other dimension tables feeding into it. Based on the relative simplicity of the relationships in this project, we have opted to organise these tables in a straightforward star schema.
+
+### 2 Staging Tables
 
 ```
 staging_events_table_create = ("""
@@ -75,7 +117,9 @@ song text,
 status numeric,
 ts timestamp sortkey,
 user_agent text,
-user_id numeric
+user_id numeric distkey,
+PRIMARY KEY (user_id))
+
 )
 """)
 
@@ -87,18 +131,23 @@ artist_latitude numeric,
 artist_longitude numeric,
 artist_location text,
 artist_name text,
-song_id text,
+song_id text distkey sortkey,
 title text,
 duration numeric,
-year numeric
+year numeric,
+PRIMARY KEY (song_id))
 )
 """)
+```
 
+### 5 Final Tables
+
+```
 songplay_table_create = ("""
 CREATE TABLE songplays (
 songplay_id bigint IDENTITY(0, 1),
-start_time timestamp references time(start_time) sortkey,
-user_id int references users(user_id) distkey,
+start_time timestamp references time(start_time) sortkey not null,
+user_id int references users(user_id) distkey not null,
 level text,
 song_id text references songs(song_id),
 artist_id text references artists(artist_id),
@@ -110,7 +159,7 @@ PRIMARY KEY (songplay_id))
 
 user_table_create = ("""
 CREATE TABLE users (
-user_id int distkey sortkey,
+user_id int distkey sortkey not null,
 first_name text,
 last_name text,
 gender text,
@@ -120,7 +169,7 @@ PRIMARY KEY (user_id))
 
 song_table_create = ("""
 CREATE TABLE songs (
-song_id text distkey,
+song_id text distkey sortkey not null,
 title text,
 artist_id text,
 year int,
@@ -130,7 +179,7 @@ PRIMARY KEY (song_id))
 
 artist_table_create = ("""
 CREATE TABLE artists (
-artist_id text distkey sortkey,
+artist_id text distkey sortkey not null,
 name text,
 location text,
 latitude double precision,
@@ -140,7 +189,7 @@ PRIMARY KEY (artist_id))
 
 time_table_create = ("""
 CREATE TABLE time (
-start_time timestamp distkey sortkey,
+start_time timestamp distkey sortkey not null,
 hour int,
 day int,
 week int,

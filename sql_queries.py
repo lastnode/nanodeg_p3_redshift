@@ -86,7 +86,7 @@ PRIMARY KEY (user_id))
 
 song_table_create = ("""
 CREATE TABLE songs (
-song_id text distkey not null,
+song_id text distkey sortkey not null,
 title text,
 artist_id text,
 year int,
@@ -127,6 +127,8 @@ copy staging_events from {}
 iam_role {}
 json {}
 timeformat as 'epochmillisecs'
+blanksasnull
+emptyasnull
 region 'us-west-2';
 """).format(LOG_DATA, DWH_ROLE_ARN, LOG_JSONPATH)
 
@@ -134,6 +136,8 @@ staging_songs_copy = ("""
 copy staging_songs from {}
 iam_role {}
 format as json 'auto'
+blanksasnull
+emptyasnull
 region 'us-west-2';
 """).format(SONG_DATA, DWH_ROLE_ARN)
 
@@ -143,7 +147,7 @@ songplay_table_insert = ("""
 insert into songplays (
     start_time,
     user_id,
-    level, 
+    level,
     song_id,
     artist_id,
     session_id,
@@ -152,7 +156,7 @@ insert into songplays (
 select 
     distinct staging_events.ts as start_time,
     staging_events.user_id,
-    staging_events.level, 
+    staging_events.level,
     staging_songs.song_id,
     staging_songs.artist_id,
     staging_events.session_id,
