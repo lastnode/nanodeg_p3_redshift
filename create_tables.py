@@ -6,6 +6,7 @@ Script that connects to Redshift and creates the tables required
 by the `etl.py` script which should be run next.
 """
 
+
 def drop_tables(cur, conn):
 
     """

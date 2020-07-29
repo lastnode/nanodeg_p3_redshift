@@ -7,6 +7,7 @@ Script that connects to Redshift and creates both the staging
 and final tables required by the project.
 """
 
+
 def load_staging_tables(cur, conn):
 
     """
@@ -67,7 +68,7 @@ def main():
     and final tables.
 
     Calls `etl_utils.py.create_connection()` in order to connect
-    to the Postgres server. Then it passes the connection and the 
+    to the Postgres server. Then it passes the connection and the
     cursor to the following functions so they can populate the staging
     and final tables required by the project:
 
@@ -95,7 +96,7 @@ def main():
 
     # Check for command line flags to see if the user wanted to skip
     # loading either the staging or final tables.
-    
+
     parser = argparse.ArgumentParser(
         prog='etl.py',
         description="""ETL Script that extracts data from
