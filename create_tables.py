@@ -1,6 +1,10 @@
 from etl_utils import run_query, create_connection
 from sql_queries import create_table_queries, drop_table_queries
 
+"""
+Script that connects to Redshift and creates the tables required
+by the `etl.py` script which should be run next.
+"""
 
 def drop_tables(cur, conn):
 

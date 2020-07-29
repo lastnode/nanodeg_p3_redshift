@@ -90,7 +90,7 @@ def run_query(cursor, connection, query):
         for row in rows:
             print(row)
 
-    except psycopg2.Error as error:
-        print(error)        
+    except psycopg2.Error as _:
+        print("Query did not return any results.")
 
     print("Execution time:", time.time() - time_start, '\n')
