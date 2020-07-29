@@ -1,10 +1,55 @@
 import time
+import psycopg2
+import configparser
 
 """
 Support module for both `create_tables.py` and `etl.py`.
-Currently contains the main run_query() function used
-throughout both those scripts.
+Currently contains the create_connection() and run_query()
+functions used throughout both those scripts.
 """
+
+
+def create_connection(config_file):
+
+    """
+    Takes the path to `.cfg` file as an argument, and uses that
+    information to create a connection to a Redshift (Postgres)
+    database. Returns the connection and the cursor so other functions
+    can make use of them.
+
+    Paramters:
+    config_file - path to a `.cfg` file that contains connection
+    details for the Postgres database.
+
+    Returns:
+    cur (psycopg2.cursor()) - cursor of the (Postgres) db
+    conn (psycopg2.connect()) - connection to the (Postgres) db
+    """
+
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    try:
+        connection = psycopg2.connect("""
+        host={}
+        dbname={}
+        user={}
+        password={}
+        port={}
+        """.format(*config['CLUSTER'].values()))
+
+    except psycopg2.Error as error:
+        print("Error: Could not make connection to the Postgres database.")
+        print(error)
+
+    try:
+        cursor = connection.cursor()
+
+    except psycopg2.Error as error:
+        print("Error: Could not get cursor.")
+        print(error)
+
+    return(cursor, connection)
 
 
 def run_query(cur, conn, query):

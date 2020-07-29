@@ -1,7 +1,5 @@
-import configparser
-import psycopg2
+from etl_utils import run_query, create_connection
 from sql_queries import create_table_queries, drop_table_queries
-from etl_utils import run_query
 
 
 def drop_tables(cur, conn):
@@ -51,9 +49,10 @@ def main():
     """
     Main function of this script that creates the tables.
 
-    Connects to the Postgres server
-    and passes the connection and the cursor to the following functions
-    so they can set up the tables required by the `etl.py` script:
+    Calls `etl_utils.py.create_connection()` in order to connect
+    to the Postgres server. Then it passes the connection and the
+    cursor to the following functions so they can set up the tables
+    required by the `etl.py` script:
 
     drop_tables()
     creat_tables()
@@ -65,23 +64,12 @@ def main():
     None
     """
 
-    config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    cursor, connection = create_connection("dwh.cfg")
 
-    conn = psycopg2.connect("""
-        host={}
-        dbname={}
-        user={}
-        password={}
-        port={}
-        """.format(*config['CLUSTER'].values()))
+    drop_tables(cursor, connection)
+    create_tables(cursor, connection)
 
-    cur = conn.cursor()
-
-    drop_tables(cur, conn)
-    create_tables(cur, conn)
-
-    conn.close()
+    connection.close()
 
 
 if __name__ == "__main__":

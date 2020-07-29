@@ -1,8 +1,6 @@
-import configparser
-import psycopg2
-from sql_queries import staging_table_queries, final_table_queries
 import argparse
-from etl_utils import run_query
+from etl_utils import run_query, create_connection
+from sql_queries import staging_table_queries, final_table_queries
 
 
 def load_staging_tables(cur, conn):
@@ -59,17 +57,8 @@ def insert_final_tables(cur, conn):
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh.cfg')
 
-    conn = psycopg2.connect("""
-    host={}
-    dbname={}
-    user={}
-    password={}
-    port={}
-    """.format(*config['CLUSTER'].values()))
-    cur = conn.cursor()
+    cursor, connection = create_connection("dwh.cfg")
 
     # Check for command line flags to see if the user wanted to skip
     # loading either the staging or final tables. This can be useful
@@ -98,14 +87,14 @@ def main():
     if args.skip_staging:
         print("Not loading s3 bucket data into staging tables.")
     else:
-        load_staging_tables(cur, conn)
+        load_staging_tables(cursor, connection)
 
     if args.skip_final:
         print("Not loading staging table data into final tables.")
     else:
-        insert_final_tables(cur, conn)
+        insert_final_tables(cursor, connection)
 
-    conn.close()
+    connection.close()
 
 
 if __name__ == "__main__":
