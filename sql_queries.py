@@ -118,9 +118,9 @@ PRIMARY KEY (start_time))
 
 # STAGING TABLES
 
-## Copy code adapted from 'Cloud Data Warehouses' module exercises.
-
-# Redshift timeformat code from - https://stackoverflow.com/questions/28496065/epoch-to-timeformat-yyyy-mm-dd-hhmiss-while-redshift-copy
+# Copy code adapted from 'Cloud Data Warehouses' module exercises.
+# Redshift timeformat code from -
+# https://stackoverflow.com/questions/28496065/epoch-to-timeformat-yyyy-mm-dd-hhmiss-while-redshift-copy
 
 staging_events_copy = ("""
 copy staging_events from {}
@@ -153,7 +153,7 @@ insert into songplays (
     session_id,
     location,
     user_agent)
-select 
+select
     distinct staging_events.ts as start_time,
     staging_events.user_id,
     staging_events.level,
@@ -201,7 +201,7 @@ insert into songs (
     year,
     duration
 )
-select 
+select
     distinct staging_songs.song_id,
     staging_songs.title,
     staging_songs.artist_id,
@@ -255,7 +255,35 @@ from staging_events
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
-drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
-staging_table_queries = [staging_events_copy, staging_songs_copy]
-final_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+create_table_queries = [
+    staging_events_table_create,
+    staging_songs_table_create,
+    user_table_create,
+    song_table_create,
+    artist_table_create,
+    time_table_create,
+    songplay_table_create
+    ]
+
+drop_table_queries = [
+    staging_events_table_drop,
+    staging_songs_table_drop,
+    songplay_table_drop,
+    user_table_drop,
+    song_table_drop,
+    artist_table_drop,
+    time_table_drop
+    ]
+
+staging_table_queries = [
+    staging_events_copy,
+    staging_songs_copy
+    ]
+
+final_table_queries = [
+    songplay_table_insert,
+    user_table_insert,
+    song_table_insert,
+    artist_table_insert,
+    time_table_insert
+    ]

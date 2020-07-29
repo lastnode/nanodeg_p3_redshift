@@ -8,13 +8,14 @@ from etl_utils import run_query
 def load_staging_tables(cur, conn):
 
     """
-    Uses Redshift's COPY function - https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+    Uses Redshift's COPY function -
+    https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
     to insert JSON data from a s3 bucket into two staging tables:
 
     1) staging_events
     2) staging_songs
-    
-    Runs the list of queries in `staging_table_queries` in the `sql_queries` 
+
+    Runs the list of queries in `staging_table_queries` in the `sql_queries`
     module through etl_utils.run_query() which executes them in turn.
 
     Paramters:
@@ -32,7 +33,7 @@ def load_staging_tables(cur, conn):
 def insert_final_tables(cur, conn):
 
     """
-    Extracts data from our two staging tables, transforms the data 
+    Extracts data from our two staging tables, transforms the data
     into the format required for our analytics to be run and inserts
     them into the five following tables:
 
@@ -42,7 +43,7 @@ def insert_final_tables(cur, conn):
     4) artists
     5) time
 
-    Runs the list of queries in `drop_table_queries` in the `sql_queries` 
+    Runs the list of queries in `drop_table_queries` in the `sql_queries`
     module through etl_utils.run_query() which executes them in turn.
 
     Paramters:
@@ -61,7 +62,13 @@ def main():
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect("""
+    host={}
+    dbname={}
+    user={}
+    password={}
+    port={}
+    """.format(*config['CLUSTER'].values()))
     cur = conn.cursor()
 
     # Check for command line flags to see if the user wanted to skip
@@ -69,19 +76,31 @@ def main():
     # when testing, since loading data into staging tables can take
     # some time.
 
-    parser = argparse.ArgumentParser(prog='etl.py', description='ETL Script that extracts data from s3 buckets and loads them into tables.')
-    parser.add_argument('-s', '--skip-staging', action='store_true', help='Skip extracing data from s3 bucket and loading them into the staging tables.')
-    parser.add_argument('-f', '--skip-final', action='store_true', help='Skip extracing data from the staging tables and loading them into the final tables.')
+    parser = argparse.ArgumentParser(
+        prog='etl.py',
+        description="""ETL Script that extracts data from
+            s3 buckets and loads them into tables.""")
 
+    parser.add_argument(
+        '-s', '--skip-staging',
+        action='store_true',
+        help="""Skip extracing data from s3 bucket and loading them
+        into the staging tables.""")
 
-    args, leftovers = parser.parse_known_args()
+    parser.add_argument(
+        '-f', '--skip-final',
+        action='store_true',
+        help="""Skip extracing data from the staging tables and
+        loading them into the final tables.""")
+
+    args, _ = parser.parse_known_args()
 
     if args.skip_staging:
         print("Not loading s3 bucket data into staging tables.")
     else:
         load_staging_tables(cur, conn)
-       
-    if args.skip_final == True:
+
+    if args.skip_final:
         print("Not loading staging table data into final tables.")
     else:
         insert_final_tables(cur, conn)

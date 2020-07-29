@@ -9,7 +9,7 @@ def drop_tables(cur, conn):
     """
     Connects to the Amazon Redshift database specifiied in 'dwh.cfg'
     in order to drop tables remaining from previous ETL processes.
-  
+
     Runs the list of queries in `create_table_queries` in the `sql_queries`
     module through etl_utils.run_query() which executes them in turn.n.
 
@@ -23,7 +23,7 @@ def drop_tables(cur, conn):
 
     for query in drop_table_queries:
         run_query(cur, conn, query)
-             
+
 
 def create_tables(cur, conn):
 
@@ -49,8 +49,8 @@ def create_tables(cur, conn):
 def main():
 
     """
-    Main function of this script that creates the tables. 
-    
+    Main function of this script that creates the tables.
+
     Connects to the Postgres server
     and passes the connection and the cursor to the following functions
     so they can set up the tables required by the `etl.py` script:
@@ -68,7 +68,14 @@ def main():
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect("""
+        host={}
+        dbname={}
+        user={}
+        password={}
+        port={}
+        """.format(*config['CLUSTER'].values()))
+
     cur = conn.cursor()
 
     drop_tables(cur, conn)
