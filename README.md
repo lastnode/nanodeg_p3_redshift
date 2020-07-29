@@ -13,6 +13,7 @@ Whereas in [the first iteration of this project](https://github.com/lastnode/nan
 - sql_queries.py -- a module that create_tables.py and etl.py load to run the SQL queries
 - etl_utils.ipy -- a support module that both  `etl.py` and `create_tables.py` rely on
 - Dashboard.ipynb -- a Jupyter notebook that functions as a sample analytics dashboard
+- dwh.cfg - configuration file where database and AWS connection details need to be entered
 ```
 
 # ETL Process
@@ -48,7 +49,7 @@ This makes the ETL process more modular and allows for easier data pipeline trou
 ## Secondary ETL Scripts
 3) `sql_queries.py` - This is a module that both `create_tables.py` and `etl.py` load to run the SQL queries needed to both set up the tables required by this project, and then insert data into them. This script is not executed directly.
 
-4) `etl_utils.py` - A support module that contains a `run_query()` that is used by both `etl.py` and `create_tables.py`. Going forward this module can be expanded with other required utility functions.
+4) `etl_utils.py` - A support module that contains the `create_connection` and `run_query()` functions that are used by both `etl.py` and `create_tables.py`. Going forward this module could be expanded with other required utility functions.
 
 5) `Dashboard.ipynb.` - A [Jupyter](https://jupyter.org/) notebook that contains sample queries that might be run by an analytics team. It can be expanded on as analysts think about what other queries they would like to run on the data.
 
