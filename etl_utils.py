@@ -52,7 +52,7 @@ def create_connection(config_file):
     return(cursor, connection)
 
 
-def run_query(cur, conn, query):
+def run_query(cursor, connection, query):
 
     """
     Uses the Postgres connection and cursor passed in to
@@ -73,10 +73,24 @@ def run_query(cur, conn, query):
     """
 
     time_start = time.time()
-    print("Running query:")
+
+    cursor.execute(query)
+
+    connection.commit()
+
+    print("Query:", end=" ")
+
     print(query)
 
-    cur.execute(query)
-    conn.commit()
+    try:
+        rows = cursor.fetchall()
 
-    print(time.time() - time_start)
+        print("Result:", end=" ")
+
+        for row in rows:
+            print(row)
+
+    except psycopg2.Error as error:
+        print(error)        
+
+    print("Execution time:", time.time() - time_start, '\n')
