@@ -122,7 +122,6 @@ Given that the primary purpose of this project is to show _what songs users are 
 ### 2 Staging Tables
 
 ```
-staging_events_table_create = ("""
 CREATE TABLE IF NOT EXISTS staging_events (
 artist text,
 auth text,
@@ -141,13 +140,9 @@ song text,
 status numeric,
 ts timestamp sortkey,
 user_agent text,
-user_id numeric distkey,
-PRIMARY KEY (user_id))
-
+user_id numeric
 )
-""")
 
-staging_songs_table_create = ("""
 CREATE  TABLE IF NOT EXISTS staging_songs (
 num_songs numeric,
 artist_id text distkey,
@@ -155,19 +150,16 @@ artist_latitude numeric,
 artist_longitude numeric,
 artist_location text,
 artist_name text,
-song_id text distkey sortkey,
+song_id text,
 title text,
 duration numeric,
-year numeric,
-PRIMARY KEY (song_id))
+year numeric
 )
-""")
 ```
 
 ### 5 Final Tables
 
 ```
-songplay_table_create = ("""
 CREATE TABLE songplays (
 songplay_id bigint IDENTITY(0, 1),
 start_time timestamp references time(start_time) sortkey not null,
@@ -179,9 +171,7 @@ session_id int,
 location text,
 user_agent text,
 PRIMARY KEY (songplay_id))
-""")
 
-user_table_create = ("""
 CREATE TABLE users (
 user_id int distkey sortkey not null,
 first_name text,
@@ -189,9 +179,7 @@ last_name text,
 gender text,
 level text,
 PRIMARY KEY (user_id))
-""")
 
-song_table_create = ("""
 CREATE TABLE songs (
 song_id text distkey sortkey not null,
 title text,
@@ -199,9 +187,7 @@ artist_id text,
 year int,
 duration double precision,
 PRIMARY KEY (song_id))
-""")
 
-artist_table_create = ("""
 CREATE TABLE artists (
 artist_id text distkey sortkey not null,
 name text,
@@ -209,9 +195,7 @@ location text,
 latitude double precision,
 longitude double precision,
 PRIMARY KEY (artist_id))
-""")
 
-time_table_create = ("""
 CREATE TABLE time (
 start_time timestamp distkey sortkey not null,
 hour int,
@@ -221,7 +205,6 @@ month int,
 year int,
 weekday int,
 PRIMARY KEY (start_time))
-""")
 ```
 
 ## Example Queries
