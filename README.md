@@ -29,6 +29,29 @@ To install these via `pip` you can run:
 
 `pip install psycopg2 argparse`
 
+Thereafter, you will need to fill out the empty fields in the `dwh.cfg` configuration file with your [Amazon Redshift Postgres connection details](https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-from-psql.html) and [a Redshift IAM role that is configured with s3 access](https://docs.aws.amazon.com/redshift/latest/dg/c-getting-started-using-spectrum-create-role.html).
+
+```
+# Postgres onnection details for your Redshift cluster.
+# More details here - https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-from-psql.html
+[CLUSTER]
+HOST=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_PORT=
+
+# Redshift IAM role that allows you to access s3 - 
+# https://docs.aws.amazon.com/redshift/latest/dg/c-getting-started-using-spectrum-create-role.html
+[IAM_ROLE]
+ARN=''
+
+[S3]
+LOG_DATA='s3://udacity-dend/log_data'
+LOG_JSONPATH='s3://udacity-dend/log_json_path.json'
+SONG_DATA='s3://udacity-dend/song_data'
+```
+
 
 ## Primary ETL Scripts
 These are the two primary scripts that will need to be run for this project, in the order that they need to be run.
