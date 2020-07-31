@@ -2,7 +2,7 @@ import configparser
 
 """
 Support module for both `create_tables.py` and `etl.py`.
-Contains the queries that the functions in those scripts run.
+Contains the queries used by the following functions: create_tables.drop_tables(), create_tables.create_tables(), etl.load_staging_tables(), etl.insert_final_tables()
 """
 
 # CONFIG
