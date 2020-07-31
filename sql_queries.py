@@ -1,5 +1,8 @@
 import configparser
 
+"""
+Support module for both `create_tables.py` and `etl.py`. Contains the queries that the functions in those scripts actually run.
+"""
 
 # CONFIG
 config = configparser.ConfigParser()
@@ -11,7 +14,7 @@ SONG_DATA = config['S3']['SONG_DATA']
 LOG_JSONPATH = config['S3']['LOG_JSONPATH']
 
 # DROP TABLES
-
+# We use CASCADE here in dropping some tables because we have used `references` to these tables when creating the `songplays` table.
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
 songplay_table_drop = "DROP TABLE IF EXISTS songplays"
