@@ -29,7 +29,7 @@ To install these via `pip` you can run:
 
 `pip install psycopg2 argparse`
 
-Thereafter, you will need to fill out the empty fields in the `dwh.cfg` configuration file with your [Amazon Redshift Postgres connection details](https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-from-psql.html) and [a Redshift IAM role that is configured with s3 access](https://docs.aws.amazon.com/redshift/latest/dg/c-getting-started-using-spectrum-create-role.html).
+Thereafter, you will need to fill out the empty fields in the `dwh.cfg` configuration file with your [Amazon Redshift Postgres connection details](https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-from-psql.html) and an [Amazon Resource Name (ARN)](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html) for [a Redshift IAM role that is configured with s3 access](https://docs.aws.amazon.com/redshift/latest/dg/c-getting-started-using-spectrum-create-role.html).
 
 ```
 # Postgres onnection details for your Redshift cluster.
